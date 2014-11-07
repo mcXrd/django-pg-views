@@ -19,29 +19,29 @@ class Command(BaseCommand):
         return [(value, key) for key, value in model_view.get_columns().items()]
 
     def _drop_view(self, model_view):
-        self.stdout.write('Drop view %(view_db_name)s' % {
+        self.stdout.write('Drop view "%(view_db_name)s"' % {
             'view_db_name': model_view.get_name()
         })
-        connection.cursor().execute('DROP VIEW IF EXISTS %(view_name)s' % {'view_name': model_view.get_name()})
+        connection.cursor().execute('DROP VIEW IF EXISTS "%(view_name)s"' % {'view_name': model_view.get_name()})
 
     def _create_view(self, model_view):
-        self.stdout.write('Create view %(view_db_name)s' % {
+        self.stdout.write('Create view "%(view_db_name)s"' % {
             'view_db_name': model_view.get_name()
         })
-        connection.cursor().execute('CREATE VIEW %(view_name)s AS SELECT %(columns)s FROM %(table_name)s;' % {
+        connection.cursor().execute('CREATE VIEW "%(view_name)s" AS SELECT %(columns)s FROM "%(table_name)s";' % {
                 'view_name': model_view.get_name(),
-                'columns': ', '.join(['%s AS %s' % (column_from, column_to)
+                'columns': ', '.join(['%s AS "%s"' % (column_from, column_to)
                                       for column_from, column_to in self._get_view_columns(model_view)]),
                 'table_name': model_view.model._meta.db_table,
         })
 
     def _grand_user_permissions(self, model_view, username):
         if username:
-            self.stdout.write('Grand read permission on %(view_db_name)s to %(username)s' % {
+            self.stdout.write('Grand read permission on "%(view_db_name)s" to "%(username)s";' % {
                 'username': username,
                 'view_db_name': model_view.get_name()
             })
-            connection.cursor().execute('GRANT SELECT ON %(view_db_name)s TO %(username)s;' % {
+            connection.cursor().execute('GRANT SELECT ON "%(view_db_name)s" TO "%(username)s";' % {
                 'username': username,
                 'view_db_name': model_view.get_name()
             })

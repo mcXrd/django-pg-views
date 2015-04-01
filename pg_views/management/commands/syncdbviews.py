@@ -18,6 +18,24 @@ class Command(BaseCommand):
     def _get_view_columns(self, model_view):
         return [(value, key) for key, value in model_view.get_columns().items()]
 
+    def _get_parents_table_sql(self, model):
+        out = ''
+        for ptr_model, field in model._meta.parents.items():
+            join_conditions = []
+            for joining_columns in field.get_reverse_joining_columns():
+                ptr_model_join_column, model_join_column = joining_columns
+                join_conditions.append(
+                    '"%(model)s"."%(model_join_column)s" = "%(ptr_model)s"."%(ptr_model_join_column)s"' % {
+                        'model': model._meta.db_table,
+                        'ptr_model': ptr_model._meta.db_table,
+                        'model_join_column': model_join_column,
+                        'ptr_model_join_column': ptr_model_join_column
+                    }
+                )
+            out += ' INNER JOIN "%(ptr_model)s" ON (%(join_condition)s)' % {'ptr_model': ptr_model._meta.db_table, 'join_condition': ' AND '.join(join_conditions)}
+            out += self._get_parents_table_sql(ptr_model)
+        return out
+
     def _drop_view(self, model_view):
         self.stdout.write('Drop view "%(view_db_name)s"' % {
             'view_db_name': model_view.get_name()
@@ -28,11 +46,13 @@ class Command(BaseCommand):
         self.stdout.write('Create view "%(view_db_name)s"' % {
             'view_db_name': model_view.get_name()
         })
-        connection.cursor().execute('CREATE VIEW "%(view_name)s" AS SELECT %(columns)s FROM "%(table_name)s";' % {
+
+        connection.cursor().execute('CREATE VIEW "%(view_name)s" AS SELECT %(columns)s FROM "%(table_name)s"%(parents)s;' % {
                 'view_name': model_view.get_name(),
                 'columns': ', '.join(['%s AS "%s"' % (column_from, column_to)
                                       for column_from, column_to in self._get_view_columns(model_view)]),
                 'table_name': model_view.model._meta.db_table,
+                'parents': self._get_parents_table_sql(model_view.model)
         })
 
     def _grand_user_permissions(self, model_view, username):

@@ -47,12 +47,17 @@ class Command(BaseCommand):
             'view_db_name': model_view.get_name()
         })
 
-        connection.cursor().execute('CREATE VIEW "%(view_name)s" AS SELECT %(columns)s FROM "%(table_name)s"%(parents)s;' % {
+        condition = model_view.get_condition()
+        where = ' WHERE %s' % condition if condition else ''
+
+        connection.cursor().execute('CREATE VIEW "%(view_name)s" AS SELECT %(columns)s FROM "%(table_name)s"'
+                                    '%(parents)s%(where)s;' % {
                 'view_name': model_view.get_name(),
                 'columns': ', '.join(['%s AS "%s"' % (column_from, column_to)
                                       for column_from, column_to in self._get_view_columns(model_view)]),
                 'table_name': model_view.model._meta.db_table,
-                'parents': self._get_parents_table_sql(model_view.model)
+                'parents': self._get_parents_table_sql(model_view.model),
+                'where': where
         })
 
     def _grand_user_permissions(self, model_view, username):

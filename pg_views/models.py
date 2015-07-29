@@ -50,7 +50,7 @@ class ModelDBView(DBView):
         result = super(ModelDBView, self).get_columns()
         for field in self.model._meta.fields:
             attname, column = field.get_attname_column()
-            if attname not in self.exclude and (self.fields is None or attname in self.fields):
+            if attname not in self.exclude and (self.fields is None or field.name in self.fields):
                 result[self.get_column_name(column)] = column
         return result
 

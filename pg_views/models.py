@@ -1,7 +1,8 @@
 import sys
 
+from collections import OrderedDict
+
 from django.utils import six
-from django.utils.datastructures import SortedDict
 
 from .loading import register_sql_model_view
 
@@ -26,7 +27,7 @@ class DBView(six.with_metaclass(DBViewBase)):
     upper_names = True
 
     def get_columns(self):
-        return SortedDict()
+        return OrderedDict()
 
     def get_name(self):
         return self.upper_names and self.view_name.upper() or self.view_name

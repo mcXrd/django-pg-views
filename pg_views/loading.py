@@ -1,4 +1,5 @@
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
+
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.utils.encoding import force_text
@@ -13,7 +14,7 @@ class App(object):
 class ModelSQLViewsLoader(object):
 
     def __init__(self):
-        self.apps = SortedDict()
+        self.apps = OrderedDict()
 
     def register_sql_model_view(self, app_label, model_sql_view):
         app = self.apps.get(app_label, App())

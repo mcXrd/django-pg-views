@@ -1,7 +1,10 @@
 from collections import OrderedDict
 
+import six
+
+from importlib import import_module
+
 from django.conf import settings
-from django.utils.importlib import import_module
 from django.utils.encoding import force_text
 
 
@@ -26,7 +29,8 @@ class ModelSQLViewsLoader(object):
             try:
                 import_module('%s.models' % app)
             except ImportError as ex:
-                if force_text(ex) != 'No module named models':
+                if ((six.PY2 and force_text(ex) != 'No module named cores') or
+                        (six.PY3 and force_text(ex) != 'No module named \'%s.models\'' % app)):
                     raise ex
 
     def get_sql_model_views(self):

@@ -1,12 +1,12 @@
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.db import connection
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
 
     help = 'Drop all DB views.'
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         cursor = connection.cursor()
         cursor.execute('''SELECT 'DROP VIEW "' || table_name || '";'
                           FROM information_schema.views

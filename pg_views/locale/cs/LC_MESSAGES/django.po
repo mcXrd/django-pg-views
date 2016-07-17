@@ -1,0 +1,71 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-18 13:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: management/commands/generatedbviewsdoc.py:22
+msgid "New"
+msgstr "Nové"
+
+#: management/commands/generatedbviewsdoc.py:23
+msgid "Changed"
+msgstr "Změněné"
+
+#: management/commands/generatedbviewsdoc.py:24
+msgid "Removed"
+msgstr "Odstraněné"
+
+#: management/commands/generatedbviewsdoc.py:35
+msgid "Diff"
+msgstr "Změna"
+
+#: management/commands/generatedbviewsdoc.py:35
+msgid "All"
+msgstr "Všechny pohledy"
+
+#: management/commands/generatedbviewsdoc.py:53
+msgid "Name"
+msgstr "Název"
+
+#: management/commands/generatedbviewsdoc.py:54
+msgid "Label"
+msgstr "Popis"
+
+#: management/commands/generatedbviewsdoc.py:56
+msgid "Alter"
+msgstr "Změna"
+
+#: management/commands/generatedbviewsdoc.py:63
+msgid "Field name"
+msgstr "Název sloupce"
+
+#: management/commands/generatedbviewsdoc.py:64
+msgid "Column type"
+msgstr "Typ sloupce"
+
+#: management/commands/generatedbviewsdoc.py:65
+msgid "Field label"
+msgstr "Popisek sloupce"
+
+#: management/commands/generatedbviewsdoc.py:67
+msgid "Field alter"
+msgstr "Změna sloupce"
+
+#: models.py:63
+msgid "foreign key to view"
+msgstr "cizí klíč na pohled"

@@ -27,5 +27,11 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Internet :: WWW/HTTP :: Site Management',
     ],
+    install_requires=[
+        'django-chamber>=0.1.13'
+    ],
+    dependency_links=[
+        'https://github.com/druids/django-chamber/tarball/0.1.13#egg=django-chamber-0.1.13'
+    ],
     zip_safe=False
 )

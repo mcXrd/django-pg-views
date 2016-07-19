@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Create DB views and add permissions to read it to the the DB view user.'
 
     def _get_view_columns(self, model_view):
-        return [(value, key) for key, value in model_view.get_columns().items()]
+        return [(value[0], key) for key, value in model_view.get_columns().items()]
 
     def _get_parents_table_sql(self, model):
         out = ''

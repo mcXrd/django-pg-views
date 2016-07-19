@@ -11,7 +11,11 @@ from django.utils.encoding import force_text
 class App(object):
 
     def __init__(self):
-        self.model_sql_views = set()
+        self.model_sql_views = []
+
+    def add(self, view):
+        if view not in self.model_sql_views:
+            self.model_sql_views.append(view)
 
 
 class ModelSQLViewsLoader(object):
@@ -21,7 +25,7 @@ class ModelSQLViewsLoader(object):
 
     def register_sql_model_view(self, app_label, model_sql_view):
         app = self.apps.get(app_label, App())
-        app.model_sql_views.add(model_sql_view)
+        app.add(model_sql_view)
         self.apps[app_label] = app
 
     def _init_apps(self):
@@ -40,6 +44,17 @@ class ModelSQLViewsLoader(object):
             for sql_model_view in app.model_sql_views:
                 yield sql_model_view
 
+    def get_sql_model_view(self, model):
+        self._init_apps()
+
+        for app in self.apps.values():
+            for sql_model_view in app.model_sql_views:
+                if sql_model_view.model == model:
+                    return sql_model_view
+        return None
+
+
 loader = ModelSQLViewsLoader()
 register_sql_model_view = loader.register_sql_model_view
 get_sql_model_views = loader.get_sql_model_views
+get_sql_model_view = loader.get_sql_model_view

@@ -4,16 +4,19 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 from pg_views.loading import get_sql_model_views
+from pg_views.compatibility import CompatibilityBaseCommand
 
 
-class Command(BaseCommand):
+class Command(CompatibilityBaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        make_option('--database_view_username', action='store', dest='database_view_username',
-            default=None,
-            help='Specifies the database view user to use. If is not set the permissions will not be set.'),
-    )
     help = 'Create DB views and add permissions to read it to the the DB view user.'
+
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument(
+            '--database_view_username', action='store', dest='database_view_username',
+            default=None,
+            help='Specifies the database view user to use. If is not set the permissions will not be set.')
 
     def _get_view_columns(self, model_view):
         return [(value[0], key) for key, value in model_view.get_columns().items()]

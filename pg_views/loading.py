@@ -4,8 +4,8 @@ import six
 
 from importlib import import_module
 
-from django.conf import settings
 from django.utils.encoding import force_text
+from django.apps import apps
 
 
 class App(object):
@@ -29,12 +29,12 @@ class ModelSQLViewsLoader(object):
         self.apps[app_label] = app
 
     def _init_apps(self):
-        for app in settings.INSTALLED_APPS:
+        for app in apps.get_app_configs():
             try:
-                import_module('%s.models' % app)
+                import_module('{}.models'.format(app.name))
             except ImportError as ex:
-                if ((six.PY2 and force_text(ex) != 'No module named cores') or
-                        (six.PY3 and force_text(ex) != 'No module named \'%s.models\'' % app)):
+                if ((six.PY2 and force_text(ex) != 'No module named models') or
+                        (six.PY3 and force_text(ex) != 'No module named \'{}.models\''.format(app.name))):
                     raise ex
 
     def get_sql_model_views(self):

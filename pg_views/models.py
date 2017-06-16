@@ -39,6 +39,7 @@ class DBView(six.with_metaclass(DBViewBase)):
 
 
 class ModelDBView(DBView):
+
     abstract = True
     model = None
     exclude = ()
@@ -68,3 +69,43 @@ class ModelDBView(DBView):
     def get_name(self):
         name = self.view_name or '%s_view' % self.model._meta.db_table
         return self.upper_names and name.upper() or name
+
+    def get_sql_view_columns(self):
+        return ', '.join([
+            '{} AS "{}"'.format(column_from, column_to)
+            for column_from, column_to in [(value[0], key) for key, value in self.get_columns().items()]
+        ])
+
+    def get_sql_parent_tables(self, model):
+        return ''.join([
+            ' INNER JOIN "{ptr_model}" ON ({join_condition}){sql_ptr_parent_tables}'.format(
+                ptr_model=ptr_model._meta.db_table,
+                join_condition=' AND '.join([
+                    '"{model}"."{model_join_column}" = "{ptr_model}"."{ptr_model_join_column}"'.format(
+                        model=model._meta.db_table,
+                        ptr_model=ptr_model._meta.db_table,
+                        model_join_column=model_join_column,
+                        ptr_model_join_column=ptr_model_join_column
+                    ) for (ptr_model_join_column, model_join_column) in field.get_reverse_joining_columns()
+                ]),
+                sql_ptr_parent_tables=self.get_sql_parent_tables(ptr_model)
+            ) for ptr_model, field in model._meta.parents.items()
+        ])
+
+    def get_sql_from_tables(self):
+        return '"{table_name}"{sql_parent_tables}'.format(
+            table_name=self.model._meta.db_table,
+            sql_parent_tables=self.get_sql_parent_tables(self.model)
+        )
+
+    def get_sql_create_view(self):
+        condition = self.get_condition()
+        return 'CREATE VIEW "{view_name}" AS SELECT {columns} FROM {from_tables}{where};'.format(
+            view_name=self.get_name(),
+            columns=self.get_sql_view_columns(),
+            from_tables=self.get_sql_from_tables(),
+            where=' WHERE {}'.format(condition) if condition else ''
+        )
+
+    def get_sql_drop_view(self):
+        return 'DROP VIEW IF EXISTS "{view_name}"'.format(view_name=self.get_name())

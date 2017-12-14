@@ -59,7 +59,7 @@ class Command(CommandMixin, BaseCommand):
             view = model_view_class()
             descriptor = {}
             descriptors[view.get_name()] = descriptor
-            descriptor['verbose_name'] = view.model._meta.verbose_name
+            descriptor['verbose_name'] = view.verbose_name
             fields_descriptor = {}
             descriptor['fields'] = fields_descriptor
             for name, (_, verbose_name, db_type) in model_view_class().get_columns().items():

@@ -53,10 +53,17 @@ class ModelDBView(DBView):
     def get_column_name(self, model_column_name):
         column_name = self.column_name_mapping.get(model_column_name, model_column_name)
         return self.upper_names and column_name.upper() or column_name
+    
+    def get_fields(self):
+        return self.model._meta.fields
+
+    @property
+    def verbose_name(self):
+        return self.model._meta.verbose_name
 
     def get_columns(self):
         result = super(ModelDBView, self).get_columns()
-        for field in self.model._meta.fields:
+        for field in self.get_fields():
             attname, column = field.get_attname_column()
             if attname not in self.exclude and (self.fields is None or field.name in self.fields):
                 verbose_name = field.verbose_name
@@ -65,9 +72,13 @@ class ModelDBView(DBView):
                                                        get_sql_model_view(field.rel.to)().get_name())
                 result[self.get_column_name(column)] = (column, verbose_name, self.get_field_db_type(field))
         return result
+    
+    @property
+    def db_table(self):
+        return self.model._meta.db_table
 
     def get_name(self):
-        name = self.view_name or '%s_view' % self.model._meta.db_table
+        name = self.view_name or '%s_view' % self.db_table
         return self.upper_names and name.upper() or name
 
     def get_sql_view_columns(self):
@@ -94,7 +105,7 @@ class ModelDBView(DBView):
 
     def get_sql_from_tables(self):
         return '"{table_name}"{sql_parent_tables}'.format(
-            table_name=self.model._meta.db_table,
+            table_name=self.db_table,
             sql_parent_tables=self.get_sql_parent_tables(self.model)
         )
 
@@ -109,3 +120,32 @@ class ModelDBView(DBView):
 
     def get_sql_drop_view(self):
         return 'DROP VIEW IF EXISTS "{view_name}"'.format(view_name=self.get_name())
+
+
+class ManyToManyDBView(ModelDBView):
+
+    abstract = True
+    model = None
+    m2m_field = None
+    _verbose_name = None
+
+    def get_m2m_field(self):
+        return getattr(self.model, self.m2m_field)
+
+    @property
+    def db_table(self):
+        return self.get_m2m_field().through._meta.db_table
+
+    @property
+    def verbose_name(self):
+        return _verbose_name or self.get_m2m_field().through._meta.verbose_name
+
+    @verbose_name.setter
+    def verbose_name(self, value):
+        self._verbose_name = value
+
+    def get_fields(self):
+        return self.get_m2m_field().through._meta.fields
+
+    def get_sql_from_tables(self):
+        return self.db_table
